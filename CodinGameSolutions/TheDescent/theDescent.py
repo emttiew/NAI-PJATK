@@ -1,6 +1,7 @@
 import sys
 import math
-
+# Author Mateusz Woźniak
+# Problem: https://www.codingame.com/training/easy/the-descent
 # game loop
 while True:
     theHighest = 0

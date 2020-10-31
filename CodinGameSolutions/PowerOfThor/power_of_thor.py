@@ -1,6 +1,8 @@
 import sys
 import math
 
+# Author Mateusz Woźniak
+# Problem: https://www.codingame.com/training/easy/power-of-thor-episode-1
 
 # light_x: the X position of the light of power
 # light_y: the Y position of the light of power
