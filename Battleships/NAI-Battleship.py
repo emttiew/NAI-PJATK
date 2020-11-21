@@ -8,16 +8,22 @@ Spyder Editor
 
 This is a temporary script file.
 """
+#TODO zmienić nazwy funkcji z _
+#TODO dokumentacja
 
 from random import randint
 import random
 import os
 from enum import Enum
 
-class PlayerType(Enum):
-    HUMAN = 1
-    COMPUTER = 2
-    
+
+#Settings Variables 
+row_size = 9 #number of rows
+col_size = 9 #number of columns
+num_ships = 4
+max_ship_size = 5
+min_ship_size = 2
+num_turns = 40    
 
 #Ship Class
 class Ship:
@@ -89,6 +95,7 @@ class Player:
     ship_list = []
     guess_coords = {}  
     index = 0
+    lastImpactPoint = {}
     
     def __init__(self, index, player_type, row_size, col_size):
         self.index=index
@@ -98,6 +105,9 @@ class Player:
         self.board = [[0] * col_size for x in range(self.row_size)]
         self.board_display = [["O"] * col_size for x in range(self.row_size)]
         self.createShipList()
+    
+    def setLastImpact(self, coords):
+        self.lastImpactPoint = coords
     
     def createShipList(self): 
         temp = 0
@@ -144,15 +154,27 @@ class Player:
         return locations
     
     def guessLocation(self, enemy):
-        while True:
-          self.guess_coords['row'] = self.get_row()
-          self.guess_coords['col'] = self.get_col()
-          if enemy.board_display[self.guess_coords['row']][self.guess_coords['col']] == 'X' or \
-            enemy.board_display[self.guess_coords['row']][self.guess_coords['col']] == '*':
-            print("\nYou guessed that one already.")
-          else:
-              break        
-
+        if self.player_type == 2:
+            self.AIguessLocation(enemy)
+        else:
+            while True:
+              self.guess_coords['row'] = self.get_row()
+              self.guess_coords['col'] = self.get_col()
+              if enemy.board_display[self.guess_coords['row']][self.guess_coords['col']] == 'X' or \
+                enemy.board_display[self.guess_coords['row']][self.guess_coords['col']] == '*':
+                print("\nYou guessed that one already.")
+              else:
+                  break      
+    def AIguessLocation(self, enemy):
+        while True: 
+            self.guess_coords['row'] = randint(0, self.row_size - 1)
+            self.guess_coords['col'] = randint(0, self.col_size - 1)
+            if enemy.board_display[self.guess_coords['row']][self.guess_coords['col']] == 'X' or \
+              enemy.board_display[self.guess_coords['row']][self.guess_coords['col']] == '*':
+              print("\nYou guessed that one already.")
+            else:
+                break 
+             
     def get_row(self):
       while True:
         try:
@@ -173,62 +195,57 @@ class Player:
           else:
             print("\nOops, that's not even in the ocean.")
         except ValueError:
-          print("\nPlease enter a number")
-        
-        
-        
-    
-#Settings Variables 
-row_size = 9 #number of rows
-col_size = 9 #number of columns
-num_ships = 4
-max_ship_size = 5
-min_ship_size = 2
-num_turns = 40
-
-#Create lists
-
-
-
-
+          print("\nPlease enter a number")         
+  
 #Functions
-
-
 def print_board(board_array):
     print("\n  " + " ".join(str(x) for x in range(1, col_size + 1)))
     for r in range(row_size):
         print(str(r + 1) + " " + " ".join(str(c) for c in board_array[r]))
         print()
-
-      
-def pickFirstPlayersTurn():
-    playerList = players_list
-    if previous_player == None:
-        chosenPlayer = random.choice(playerList)    
-    return chosenPlayer    
-
+        
+def create_players():
+    players = []
+    while True:    
+        print("Choose opponent type:")
+        print("1. Hooman")
+        print("2. Computer")
+        print("3. Computer vs Computer")
+        player_type = int(input("Type: "))
+        if player_type == 1:
+            players.append(Player(1, 1, row_size, col_size))
+            players.append(Player(2, 1, row_size, col_size))
+            break
+        elif player_type == 2:
+            players.append(Player(1, 1, row_size, col_size))
+            players.append(Player(2, 2, row_size, col_size))
+            break
+        elif player_type == 3:
+            players.append(Player(1, 2, row_size, col_size))
+            players.append(Player(2, 2, row_size, col_size))
+            break
+        else:
+            print("Wrong type number")
+            os.system('clear')
+    return players
 
 # Play Game
 os.system('clear')
-player_1 = Player(1, 1, row_size, col_size)
-player_2 = Player(2, 1, row_size, col_size)
 previous_player = None
 current_player = None
 
-players_list = [player_1, player_2]
+players_list = create_players()
 
 current_player = random.choice(players_list)
 
 for turn in range(num_turns):  
   
-  if current_player == player_1:
-      previous_player = player_2
+  if current_player == players_list[0]:
+      previous_player = players_list[1]
   else:
-      previous_player = player_1
+      previous_player = players_list[0]
       
-  
-      
-  print("Player", current_player.index)
+  print("Player", current_player.index, "turn")
   print("Turn:", turn + 1, "of", num_turns)
   print("Ships left:", len(current_player.ship_list))
   print()  
@@ -239,9 +256,10 @@ for turn in range(num_turns):
 
   ship_hit = False
   for ship in previous_player.ship_list:
-    if ship.contains(current_player.guess_coords):
+    if ship.contains(previous_player.guess_coords):
       print("Hit!")
       ship_hit = True
+      previous_player.setLastImpact(previous_player.guess_coords)
       previous_player.board_display[current_player.guess_coords['row']][current_player.guess_coords['col']] = 'X'
       if ship.destroyed():
         print("Ship Destroyed!")
@@ -251,7 +269,9 @@ for turn in range(num_turns):
     previous_player.board_display[current_player.guess_coords['row']][current_player.guess_coords['col']] = '*'
     print("You missed!")
 
+  print("Player's", previous_player.index, "table")
   print_board(previous_player.board_display)
+  
   
   if not previous_player.ship_list:
     break
