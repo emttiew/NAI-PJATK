@@ -33,19 +33,22 @@ year_of_construction.automf(3)
 
 # Custom membership functions
 
-cost_per_square_meter['low'] = fuzz.trimf(cost_per_square_meter.universe, [0, 1500, 5000])
-cost_per_square_meter['medium'] = fuzz.trimf(cost_per_square_meter.universe, [0, 5000, 9000])
-cost_per_square_meter['high'] = fuzz.trimf(cost_per_square_meter.universe, [9000, 14000, 14000])
+cost_per_square_meter['low'] = fuzz.trimf(cost_per_square_meter.universe, [0, 0, 7500])
+cost_per_square_meter['medium'] = fuzz.trimf(cost_per_square_meter.universe, [0, 7500, 14000])
+cost_per_square_meter['high'] = fuzz.trimf(cost_per_square_meter.universe, [7500, 14000, 14000])
 
 
 # Fuzzy relationship between input and output variables
 
 rule1 = ctrl.Rule(antecedent=((standard['poor'] & location['poor'] & year_of_construction['poor']) |
+                              (standard['poor'] & location['poor']) |
                               (standard['average'] & location['poor'] & year_of_construction['poor'])),
                   consequent=cost_per_square_meter['low'])
 
 rule2 = ctrl.Rule(antecedent=((standard['good'] & location['poor'] & year_of_construction['poor']) |
                               (standard['poor'] & location['poor'] & year_of_construction['good']) |
+                              (standard['poor'] & location['average']) |
+                              (standard['good'] & location['poor'] & year_of_construction['good']) |
                               (standard['average'] & location['average'] & year_of_construction['average']) |
                               (standard['poor'] & location['good'] & year_of_construction['poor'])),
                   consequent=cost_per_square_meter['medium'])
