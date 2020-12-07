@@ -1,5 +1,24 @@
 # Simple apartment pricing with fuzzy logic
 
+## Problem desription
+
+Fuzzy Logic is a methodology predicated on the idea that the “truthiness” of something can be expressed over a continuum. This is to say that something isn’t true or false but instead partially true or partially false.
+
+Using fuzzy logic with python skfuzzy toolkit:
+
+Apartment pricing script creates a controller which estimates the cost per square meter.
+### Input
+* standard [1-10]
+Standard / quality of the apartment
+
+* year of construction [1945 - 2020]
+* location [1-10]
+How good is the location of the apartment eg. its close to the sea with safe area. 
+This could be another fuzzy logic problem, but in this example we consider that it is allready estimated. 
+
+### Output
+* cost per square meter [0 - 14000] (PLN)
+
 ## Membership functions:
 ### standard.view()
 <img src="https://github.com/emttiew/NAI-PJATK/blob/master/FuzzyLogicApartmentPricing/resources/standard_view.png">
