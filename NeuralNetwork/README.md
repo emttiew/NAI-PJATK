@@ -2,9 +2,11 @@
 Use neural networks to classificate data:
 
 - Tensorflow datasets fashions_mnist 
+
 Solution: https://github.com/emttiew/NAI-PJATK/blob/master/NeuralNetwork/ClothesClassification.ipynb
 
 - Abalone: 
+
 DataSet: https://machinelearningmastery.com/standard-machine-learning-datasets/
 
 ### Mean squared error vs Mean absolute error
