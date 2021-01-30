@@ -5,6 +5,10 @@ Use neural networks to classificate data:
 
 Solution: https://github.com/emttiew/NAI-PJATK/blob/master/NeuralNetwork/ClothesClassification.ipynb
 
+- Tensorflow cifar10 animal classification:
+
+Solution: https://github.com/emttiew/NAI-PJATK/blob/master/NeuralNetwork/animal_classification.ipynb
+
 - Abalone: 
 
 DataSet: https://machinelearningmastery.com/standard-machine-learning-datasets/
