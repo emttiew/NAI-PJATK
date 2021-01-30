@@ -1,5 +1,5 @@
 ## Problem
-Use Deep Learning algorithm to classificate data:
+Use neural networks to classificate data:
 
 - Tensorflow datasets fashions_mnist 
 Solution: https://github.com/emttiew/NAI-PJATK/blob/master/NeuralNetwork/ClothesClassification.ipynb
