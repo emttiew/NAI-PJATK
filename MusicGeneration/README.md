@@ -2,6 +2,8 @@
 
 Generate single instrument music in midi format using neural networks using 3 models LSTM, SimpleRNN or WaveNet
 
+Authors Mateusz Woźniak 18182, Jakub Włoch 16912
+
 ### Requirements
   - Python 3.7
   - Tensorflow
