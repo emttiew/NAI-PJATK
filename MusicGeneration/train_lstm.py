@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+# @Authors Mateusz Woźniak 18182, Jakub Włoch 16912
 
 import glob
 import pickle
@@ -34,6 +35,7 @@ def get_notes():
     notes = []
 
     for file in glob.glob("data/schubert/*.mid"):
+        # load each file into a Music21 stream object
         midi = converter.parse(file)
 
         print("Parsing %s" % file)
@@ -46,12 +48,15 @@ def get_notes():
         except:  # file has notes in a flat structure
             notes_to_parse = midi.flat.notes
 
+        # append every chord by encoding the id of every note in the chord together into a single string
+        # with each note being separated by a dot
         for element in notes_to_parse:
             if isinstance(element, note.Note):
                 notes.append(str(element.pitch))
             elif isinstance(element, chord.Chord):
                 notes.append('.'.join(str(n) for n in element.normalOrder))
 
+    # serialize data to numerical data
     with open('data/notes/notes', 'wb') as filepath:
         pickle.dump(notes, filepath)
 
@@ -59,8 +64,14 @@ def get_notes():
 
 
 def prepare_sequences(notes, n_vocab):
-    """ Prepare the sequences used by the Neural Network """
+    """
+    Prepare the sequences used by the Neural Network
+
+    The output for each input sequence will be the first note or chord
+    that comes after the sequence of notes in the input sequence in our list of notes
+    """
     sequence_length = 32
+
 
     # get all pitch names
     pitchnames = sorted(set(item for item in notes))
