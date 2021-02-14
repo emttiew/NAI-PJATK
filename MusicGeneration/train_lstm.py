@@ -115,7 +115,7 @@ def create_network(network_input, n_vocab):
     # while another closer to 0
     model.compile(loss='categorical_crossentropy', optimizer='adam')
 
-    model.load_weights('data/weights/new-lstm-weights-1100-0.1161.hdf5')
+    #model.load_weights('data/weights/new-lstm-weights-1100-0.1161.hdf5')
 
     return model
 
