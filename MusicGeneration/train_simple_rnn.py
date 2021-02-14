@@ -3,7 +3,8 @@
 
 import glob
 import pickle
-import numpy
+import numpy as np
+from matplotlib import pyplot
 from music21 import converter, instrument, note, chord
 from keras.models import Sequential
 from keras.layers import Dense
@@ -13,6 +14,7 @@ from keras.layers import Activation
 from keras.layers import BatchNormalization as BatchNorm
 from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
+from sklearn.model_selection import train_test_split
 
 
 def train_network_simple_rnn():
@@ -81,7 +83,7 @@ def prepare_sequences(notes, n_vocab):
     n_patterns = len(network_input)
 
     # reshape the input into a format compatible with LSTM layers
-    network_input = numpy.reshape(network_input, (n_patterns, sequence_length, 1))
+    network_input = np.reshape(network_input, (n_patterns, sequence_length, 1))
     # normalize input
     network_input = network_input / float(n_vocab)
 
@@ -112,6 +114,16 @@ def create_network_simple_rnn(network_input, n_vocab):
     return model
 
 
+def plot_validation(history):
+    pyplot.plot(history.history['loss'])
+    pyplot.plot(history.history['val_loss'])
+    pyplot.title('model train vs validation loss')
+    pyplot.ylabel('loss')
+    pyplot.xlabel('epoch')
+    pyplot.legend(['train', 'validation'], loc='upper right')
+    pyplot.show()
+
+
 def train_simple_rnn(model, network_input, network_output):
     """ train the neural network """
     filepath = "data/weights/new_simple_rnn-weights-1{epoch:02d}-{loss:.4f}.hdf5"
@@ -124,20 +136,13 @@ def train_simple_rnn(model, network_input, network_output):
     )
     callbacks_list = [checkpoint]
 
-    model.fit(network_input, network_output, epochs=100, batch_size=64, callbacks=callbacks_list)
+    x_tr, x_val, y_tr, y_val = train_test_split(network_input, network_output, test_size=0.2, random_state=0)
+
+    history = model.fit(np.array(x_tr), np.array(y_tr), batch_size=64, epochs=100,
+                        validation_data=(np.array(x_val), np.array(y_val)), verbose=1, callbacks=callbacks_list)
+
+    plot_validation(history)
 
 
 if __name__ == '__main__':
     train_network_simple_rnn()
-
-
-
-
-
-
-
-
-
-
-
-
