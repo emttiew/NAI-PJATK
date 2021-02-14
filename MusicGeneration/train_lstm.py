@@ -3,21 +3,24 @@
 
 import glob
 import pickle
-import numpy as np
+
 from matplotlib import pyplot
 from music21 import converter, instrument, note, chord
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
-from keras.layers import LSTM
-from keras.layers import Activation
-from keras.layers import BatchNormalization as BatchNorm
+from keras.layers import Conv1D
+from keras.layers import MaxPool1D
+from keras.layers import GlobalMaxPool1D
+from keras.layers import Embedding
+import keras.backend as K
 from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 
-def train_network():
+def train_network_wavenet():
     """ Train a Neural Network to generate music """
     notes = get_notes()
 
@@ -26,9 +29,9 @@ def train_network():
 
     network_input, network_output = prepare_sequences(notes, n_vocab)
 
-    model = create_network(network_input, n_vocab)
+    model = create_network_wavenet(network_input, n_vocab)
 
-    train(model, network_input, network_output)
+    train_wavenet(model, network_input, network_output)
 
 
 def get_notes():
@@ -92,29 +95,33 @@ def prepare_sequences(notes, n_vocab):
     return network_input, network_output
 
 
-def create_network(network_input, n_vocab):
-    """ create the structure of the neural network """
+def create_network_wavenet(network_input, n_vocab):
+    K.clear_session()
     model = Sequential()
-    model.add(LSTM(
-        512,
-        input_shape=(network_input.shape[1], network_input.shape[2]),
-        recurrent_dropout=0.3,
-        return_sequences=True
-    ))
-    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3, ))
-    model.add(LSTM(512))
-    model.add(BatchNorm())  # normalization for optimization
-    model.add(Dropout(0.3))  # set 0 to random input unit to prevent overfitting
-    model.add(Dense(256))  # connect each input node to output node in layer
-    model.add(Activation('relu'))  # piecewise linear function that will output the input directly if it is positive,
-    # otherwise, it will output zero
-    model.add(BatchNorm())
+
+    # embedding layer
+    model.add(Embedding(n_vocab, 100, trainable=True))
+
+    model.add(Conv1D(64, 3, padding='causal', activation='relu'))
     model.add(Dropout(0.3))
-    model.add(Dense(n_vocab))
-    model.add(Activation('softmax'))  # softmax is exponential and enlarges differences - push one result closer to 1
-    # while another closer to 0
+    model.add(MaxPool1D(2))
+
+    model.add(Conv1D(128, 3, activation='relu', dilation_rate=2, padding='causal'))
+    model.add(Dropout(0.3))
+    model.add(MaxPool1D(2))
+
+    model.add(Conv1D(256, 3, activation='relu', dilation_rate=4, padding='causal'))
+    model.add(Dropout(0.3))
+    model.add(MaxPool1D(2))
+
+    model.add(GlobalMaxPool1D())
+
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(n_vocab, activation='softmax'))
+
     model.compile(loss='categorical_crossentropy', optimizer='adam')
 
+    model.summary()
     return model
 
 
@@ -128,9 +135,9 @@ def plot_validation(history):
     pyplot.show()
 
 
-def train(model, network_input, network_output):
+def train_wavenet(model, network_input, network_output):
     """ train the neural network """
-    filepath = "data/weights/new-lstm-weights-1{epoch:02d}-{loss:.4f}.hdf5"
+    filepath = "data/weights/new-wavenet-weights-1{epoch:02d}-{loss:.4f}.hdf5"
     checkpoint = ModelCheckpoint(
         filepath,
         monitor='loss',
@@ -149,4 +156,4 @@ def train(model, network_input, network_output):
 
 
 if __name__ == '__main__':
-    train_network()
+    train_network_wavenet()
