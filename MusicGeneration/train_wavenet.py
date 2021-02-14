@@ -3,7 +3,8 @@
 
 import glob
 import pickle
-import numpy
+
+from matplotlib import pyplot
 from music21 import converter, instrument, note, chord
 from keras.models import Sequential
 from keras.layers import Dense
@@ -85,7 +86,7 @@ def prepare_sequences(notes, n_vocab):
     n_patterns = len(network_input)
 
     # reshape the input into a format compatible with LSTM layers
-    network_input = numpy.reshape(network_input, (n_patterns, sequence_length, 1))
+    network_input = np.reshape(network_input, (n_patterns, sequence_length, 1))
     # normalize input
     network_input = network_input / float(n_vocab)
 
@@ -124,6 +125,16 @@ def create_network_wavenet(network_input, n_vocab):
     return model
 
 
+def plot_validation(history):
+    pyplot.plot(history.history['loss'])
+    pyplot.plot(history.history['val_loss'])
+    pyplot.title('model train vs validation loss')
+    pyplot.ylabel('loss')
+    pyplot.xlabel('epoch')
+    pyplot.legend(['train', 'validation'], loc='upper right')
+    pyplot.show()
+
+
 def train_wavenet(model, network_input, network_output):
     """ train the neural network """
     filepath = "data/weights/new-wavenet-weights-1{epoch:02d}-{loss:.4f}.hdf5"
@@ -138,21 +149,11 @@ def train_wavenet(model, network_input, network_output):
 
     x_tr, x_val, y_tr, y_val = train_test_split(network_input, network_output, test_size=0.2, random_state=0)
 
-    model.fit(np.array(x_tr), np.array(y_tr), batch_size=64, epochs=100,
-              validation_data=(np.array(x_val), np.array(y_val)), verbose=1, callbacks=callbacks_list)
+    history = model.fit(np.array(x_tr), np.array(y_tr), batch_size=64, epochs=100,
+                        validation_data=(np.array(x_val), np.array(y_val)), verbose=1, callbacks=callbacks_list)
+
+    plot_validation(history)
 
 
 if __name__ == '__main__':
     train_network_wavenet()
-
-
-
-
-
-
-
-
-
-
-
-
