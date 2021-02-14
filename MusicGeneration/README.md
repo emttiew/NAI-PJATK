@@ -12,7 +12,12 @@ Authors Mateusz Woźniak 18182, Jakub Włoch 16912
   - H5py
   - Numpy
   - Some midi player
-  
+
+## Learning curve
+### LSTM
+![](https://github.com/emttiew/NAI-PJATK/blob/master/MusicGeneration/data/plots/lstm.png?raw=true)
+### SimpleRNN
+![](https://github.com/emttiew/NAI-PJATK/blob/master/MusicGeneration/data/plots/simple_rnn.png?raw=true)
 ## Usage
 
 ### Training
